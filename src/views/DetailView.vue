@@ -1,27 +1,33 @@
 <script setup>
 import Gallery from '@/components/detail/Gallery.vue';
-import { RouterLink,useRoute } from 'vue-router';
-import { onMounted,ref,computed } from 'vue';
+import { RouterLink, useRoute } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import { onMounted, ref, computed } from 'vue';
 import axios from 'axios';
 
 const route = useRoute()
 const item = ref(false)
+const userStore = useUserStore()
+const getUser = computed(() => userStore.getUser)
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+const user = computed(() => userStore.user)
 
-async function getProduct(){
+async function getProduct() {
     try {
-        const response = await axios.get('https://zullkit-backend.belajarkoding.com/api/products?id='+ route.params.id +'&show_product=1')
+        const response = await axios.get('https://zullkit-backend.belajarkoding.com/api/products?id=' + route.params.id + '&show_product=1')
         item.value = response.data.data
     } catch (error) {
         console.log(error)
     }
 }
 
-const features = computed(()=>{
+const features = computed(() => {
     return item.value.features.split(', ')
 })
 
-onMounted(()=>{
-    window.scrollTo(0,0)
+onMounted(() => {
+    window.scrollTo(0, 0)
+    userStore.fetchUser()
     getProduct()
 })
 </script>
@@ -79,10 +85,14 @@ onMounted(()=>{
                                     </li>
                                 </ul>
                             </div>
-                            <RouterLink to="/pricing"
-                                class="inline-flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-full hover:bg-indigo-700 md:py-2 md:text-md md:px-10 hover:shadow">
-                                Download Now
-                            </RouterLink>
+                                <a :href="item.file" v-if="user.data.subscription.length > 0"
+                                    class="inline-flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-full hover:bg-indigo-700 md:py-2 md:text-md md:px-10 hover:shadow">
+                                    Download Now
+                                </a>
+                                <RouterLink to="/pricing" v-else
+                                    class="inline-flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-full hover:bg-indigo-700 md:py-2 md:text-md md:px-10 hover:shadow">
+                                    Subscribe Now
+                                </RouterLink>
                         </div>
                     </div>
                 </aside>
