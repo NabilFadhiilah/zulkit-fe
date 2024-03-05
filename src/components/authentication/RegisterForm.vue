@@ -1,7 +1,13 @@
 <script setup>
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import { ref } from "vue";
 import axios from "axios";
+
+import { useUserStore } from "@/stores/user";
+
+const userStore = useUserStore()
+const router = useRouter()
+
 const form = ref({
   name: "",
   email: "",
@@ -22,6 +28,9 @@ async function register() {
     );
     localStorage.setItem("access_token", response.data.data.access_token);
     localStorage.setItem("token_type", response.data.data.token_type);
+
+    userStore.fetchUser()
+    router.push('/')
   } catch (error) {
     console.log(error);
   }
